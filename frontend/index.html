@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing URL Detector</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0f172a;
+            --secondary-color: #1e293b;
+            --accent-color: #3b82f6;
+            --text-color: #f1f5f9;
+            --light-primary: #f8fafc;
+            --light-secondary: #e2e8f0;
+            --light-text: #0f172a;
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="light"] {
+            --primary-color: #f8fafc;
+            --secondary-color: #e2e8f0;
+            --accent-color: #2563eb;
+            --text-color: #0f172a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav {
+            background-color: var(--secondary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        nav .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        nav ul li {
+            cursor: pointer;
+            font-weight: 500;
+            position: relative;
+        }
+
+        nav ul li a{
+            text-decoration: none;
+            color: inherit; 
+        }
+
+        nav ul li:hover {
+            color: var(--accent-color);
+        }
+
+        /* Underline the active item */
+        nav ul li.active {
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 4px;
+        }
+
+        .toggle-button {
+            background-color: var(--accent-color);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            max-width: 500px;
+            padding: 12px;
+            border: 2px solid var(--accent-color);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        button.check-btn, button.clear-btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        button.check-btn:hover, button.clear-btn:hover {
+            background-color: #60a5fa;
+        }
+
+        .result {
+            font-size: 1.5rem;
+            margin-top: 20px;
+            color: var(--accent-color);
+        }
+
+        .feature-vector {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .toggle-features-btn {
+            margin-top: 15px;
+            padding: 8px 15px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .toggle-features-btn:hover {
+            background-color: #60a5fa;
+        }
+
+        #features-container {
+            margin-top: 10px;
+            display: none;
+            font-family: monospace;
+            word-break: break-word;
+        }
+
+        footer {
+            background-color: var(--secondary-color);
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--secondary-color);
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            color: var(--text-color);
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .close {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .close:hover {
+            background-color: #60a5fa;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">PhishGuard</div>
+        <ul>
+            <li><a href="#" onclick="activateLink(this)">Home</a></li>
+            <li><a href="#" onclick="openContactModal()">Contact</a></li>
+            <li><a href="#" class="toggle-button" onclick="toggleTheme()">Toggle Mode</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h1>Phishing URL Prediction</h1>
+
+        <input type="text" id="url-input" placeholder="Enter URL to check" />
+        
+        <div class="buttons-container">
+            <button class="check-btn" onclick="predictURL()">Check URL</button>
+            <button class="clear-btn" onclick="clearInput()">Clear</button>
+        </div>
+
+        <div id="prediction-result" class="result"></div>
+
+        <button id="toggle-features-btn" class="toggle-features-btn" style="display:none;" onclick="toggleFeatures()">🔽 Show Features</button>
+
+        <div id="features-container" class="feature-vector"></div>
+    </div>
+
+    <!-- Modal for Contact -->
+    <div id="contact-modal" class="modal">
+        <div class="modal-content">
+            <h2>Contact Us</h2>
+            <p>We'd love to hear from you! Please fill in your details below:</p>
+            <form>
+                <input type="text" placeholder="Your Name" style="margin-bottom: 10px; width: 100%; padding: 10px; border-radius: 5px;"><br>
+                <input type="email" placeholder="Your Email" style="margin-bottom: 20px; width: 100%; padding: 10px; border-radius: 5px;"><br>
+                <textarea placeholder="Your Message" style="width: 100%; padding: 10px; border-radius: 5px; height: 100px;"></textarea><br>
+                <button type="submit" class="close">Send Message</button>
+            </form>
+            <button class="close" onclick="closeContactModal()">Close</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>Shreyansh Sahu &copy; 2025 PhishGuard. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Function to activate the underline effect on clicked nav items
+        function activateLink(link) {
+            // Remove underline from all links
+            const allLinks = document.querySelectorAll("nav ul li");
+            allLinks.forEach((li) => li.classList.remove("active"));
+
+            // Add underline to the clicked link
+            link.parentElement.classList.add("active");
+
+            // Blur the input field to avoid the blinking vertical line (text cursor)
+            document.getElementById("url-input").blur();
+        }
+
+        // Show the contact modal
+        function openContactModal() {
+            document.getElementById("contact-modal").style.display = "flex"; 
+        }
+
+        // Close the contact modal
+        function closeContactModal() {
+            document.getElementById("contact-modal").style.display = "none"; 
+        }
+
+        async function predictURL() {
+            const url = document.getElementById("url-input").value;
+
+            if (!url) {
+                alert("Please enter a URL");
+                return;
+            }
+
+            document.getElementById("prediction-result").innerHTML = '';
+            document.getElementById("features-container").innerHTML = '';
+            document.getElementById("features-container").style.display = 'none';
+            document.getElementById("toggle-features-btn").style.display = 'none';
+
+            const response = await fetch('http://127.0.0.1:8000/predict/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url: url }),
+            });
+
+            const data = await response.json();
+            const prediction = data.prediction;
+            const features = data.features;
+
+            document.getElementById("prediction-result").innerHTML = `<h2>Prediction: ${prediction}</h2>`;
+
+            const featureContainer = document.getElementById("features-container");
+            featureContainer.innerHTML = `[${features.join(", ")}]`;
+
+            const toggleBtn = document.getElementById("toggle-features-btn");
+            toggleBtn.style.display = "inline-block";
+            featureContainer.style.display = "none";
+            toggleBtn.innerText = "🔽 Show Features";
+        }
+
+        function toggleFeatures() {
+            const featureContainer = document.getElementById("features-container");
+            const toggleBtn = document.getElementById("toggle-features-btn");
+
+            if (featureContainer.style.display === "none") {
+                featureContainer.style.display = "block";
+                toggleBtn.innerText = "🔼 Hide Features";
+            } else {
+                featureContainer.style.display = "none";
+                toggleBtn.innerText = "🔽 Show Features";
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        }
+
+        function clearInput() {
+            document.getElementById("url-input").value = '';
+            document.getElementById("prediction-result").innerHTML = '';
+        }
+    </script>
+</body>
+</html>
