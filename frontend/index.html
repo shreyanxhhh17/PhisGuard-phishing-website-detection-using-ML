@@ -229,6 +229,75 @@
             background-color: #60a5fa;
         }
 
+        /* Add this at the bottom of your <style> */
+
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    nav ul {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+    }
+
+    .container {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    input[type="text"] {
+        width: 100%;
+    }
+
+    .buttons-container {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    button.check-btn, button.clear-btn {
+        width: 100%;
+    }
+
+    .modal-content {
+        width: 90%;
+    }
+
+    .result {
+        font-size: 1.2rem;
+    }
+
+    footer {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.7rem;
+    }
+
+    nav .logo {
+        font-size: 1.2rem;
+    }
+
+    nav ul li {
+        font-size: 0.9rem;
+    }
+
+    .toggle-button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+}
+
+
     </style>
 </head>
 <body>
